@@ -414,7 +414,6 @@ cPartida* generarPartida(){
 void Menu();
 
 void Tutorial() { //Printea un Tutorial
-    int regresar;
     cout <<  endl << endl << "         ⋆｡‧˚ʚ TUTORIAL ɞ˚‧｡⋆      " << endl << endl << endl;
     cout << " ☆ OBJETIVO ☆" <<  endl << endl;
     cout << "   Descubrir todas las casillas libres de minas\n   sin hacer explotar ninguna." << endl << endl << endl <<  endl;
@@ -452,21 +451,7 @@ void Tutorial() { //Printea un Tutorial
     cout << "         " <<"3 |  1  1  2  ▢  " << endl;
     cout << "         " <<"4 |  0  0  1  ★  " << endl << endl;
     cout << "         " <<"  -- GAVE OVER -- "<< endl ;
-
-    cout <<  endl << " ╭═════════════════════════════════════════════╮" << endl;
-    do {
-        cout <<" | Ingresa un número para regresar al menú: ";
-        cin >> regresar;
-        if (cin.fail()) {
-            cin.clear(); // Limpiar el estado de error
-            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignorar cualquier entrada restante
-        } else {
-            break; // Salir del bucle si la entrada es válida
-        }
-    } while (true);
-    cout << " ╰═════════════════════════════════════════════╯" << endl << endl ;
-    
-
+    this_thread::sleep_for(chrono::seconds(7));
     Menu();}
 
 void MostrarMejoresJugadores(const string& archivoNombre) {
