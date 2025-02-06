@@ -4,47 +4,13 @@
 #include <ctime>
 #include <vector>
 #include <thread>
-#include <chrono>
 #include <cmath>
+#include <chrono>
 #include <fstream>
 #include <algorithm>
 #include <map>
-//#include "windows.h";
 using namespace std;
 using namespace chrono;
-
-/*
-    Cosas que resaltar en el informe:
-    - El programa valida cada entrada y no forma bucles infinitos ante un error del usuario
-    - Detallar cada validación (primera jugada, pedi rcoordenada, regresar al menú/tutorial, menú, jugar) 
-        (Los movimientos dentro del tamaño del tablero)
-    - Implementación del tutorial
-    - "100" para volver a escoger opción al jugar (sugerencia de usuario)
-    - Advertencias al hacer jugadas incorrectas (detallar)
-        - No se pueden quitar banderas donde no hay
-        - No se puede colocar una bandera en una casilla descubierta
-        - No se puede colocar una bandera en una casilla ya banderizada
-    - En vez de contar las jugadas medimos el tiempo
-    - Tiempo usando la librería chrono
-    - Puedes ganar aunque no hayas puesto todas las banderas
-    - Si seleccionas una casilla 0, se voltean todas las casillas 0 a sus alrededores y adjacentes
-    - Numeros con colores
-    - Contadores de banderas puestas
-    - Archivos para contar las mejores partidas según dificultad
-*/
-
-/* 
-mTablero: 
-    -1 = bomba
-    [0-9] = numero
-
-mPrint_Tablero:
-   -3 = no volteado
-   -2 = bomba
-   -1 = bandera
-   [0-9] = numero
-*/
-
 
 class cPartida {
 private:
@@ -61,36 +27,23 @@ private:
     time_point<high_resolution_clock> mEnd;
     double mTiempo;
 
-
 public:
     cPartida (int i, string Nombre) {
         mNombre = Nombre;
         if (i == 1) {mTamanio = 6; mBombas = 3 + rand() % 3;}
         else if (i == 2) {mTamanio = 8; mBombas = 8 + rand() % 5;}
         else if (i == 3) {mTamanio = 10; mBombas = 15 + rand() % 6;}
-/*
-        else {
-            cout << endl << "              Opción no valida" <<  endl;
-            cout << " ∧,,,∧ ~ ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓" << endl;
-            cout << "( ̳•·• ̳)~   Dificultad 'Fácil' por defecto" << endl;
-            cout << "/   づ ~ ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"<< endl ;
-            mTamanio = 6; mBombas = 3 + rand() % 3;}
-*/
 
-        // crear tableros
         mTablero = new int*[mTamanio];
         mPrintTablero = new int*[mTamanio];
         for (int i = 0; i < mTamanio; i++){
             mTablero[i] = new int[mTamanio];
             mPrintTablero[i] = new int[mTamanio];}
 
-        // llenar tableros
         for (int i = 0; i < mTamanio; i++) {
             for (int j = 0; j < mTamanio; j++) {
                 mTablero[i][j] = 0;
-                mPrintTablero[i][j] = -3;}
-        }
-    }
+                mPrintTablero[i][j] = -3;}}}
 
     void Iniciarjuego (){
         cout << "     GAME START ╰(*°▽°*)╯    " << endl << endl ;
@@ -105,9 +58,8 @@ public:
             if (cin.fail()){
                 cin.clear(); 
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                x = -1; // Asigna un valor fuera del rango permitido para repetir el bucle
-            } 
-            else{x -= 1;} // Ajustar índice a base 0
+                x = -1;} 
+            else{x -= 1;}
         } while (x < 0 || x >= mTamanio);
 
         do {
@@ -116,17 +68,14 @@ public:
             if (cin.fail()){
                 cin.clear(); 
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                y = -1;
-            } 
+                y = -1;} 
             else {y -= 1;}
         } while (y < 0 || y >= mTamanio || typeid(y) != typeid(int));
 
-
         LlenarBombas(x,y);
         ColocarNumEnTablero();
-        Jugada(x, y); // realizar la jugada inicial
-        Continuar_Jugando();
-}
+        Jugada(x, y);
+        Continuar_Jugando();}
 
     void ImprimirPrintTablero () {
     cout << endl << endl << endl;
@@ -231,7 +180,7 @@ public:
         else if (mTablero[x][y] == -1) { // si es una bandera
                 cout << "Aquí hay una bandera. Quítala para descubrir la zona ∧,,,∧" << endl;
                 mContinuarPartida = true;} 
-            
+
         //Número
         else{
             if (mTablero[x][y] == 0) {DespejarZona(x, y);}  // si la celda seleccionada es un 0, despejar la zona
@@ -248,7 +197,7 @@ public:
                 cout << endl;
                 MedirTiempo();
                 GuardarResultado(); // Guardar el resultado al archivo
-                
+
                 cout << "╭══════════════•   •✧๑♡๑✧•   •═══════════════╮" << endl;
                 cout << "|                                            |" << endl;
                 cout << "|         ¡Felicidades, " <<  mNombre  << "!" << endl; 
@@ -279,7 +228,7 @@ public:
                 ColocarBandera(x, y); // coloca la bandera
                 ImprimirPrintTablero();} // imprimir el tablero después de cada acción
 
-                
+
             else if (accion == 'q') {
                 x = PedirCoordenada("   → Ingrese la fila: ");
                 if (x == 100){Continuar_Jugando(); break;}
@@ -341,12 +290,12 @@ public:
     void ColocarBandera (int x, int y) {
         if (mPrintTablero[x][y] == -1) { // verifica si ya hay una bandera en esa posición
             cout << endl << "  ⚠️  ADVERTENCIA: Ya hay una bandera en la posición (" << x + 1 << "," << y + 1 << ")" << endl;}
-        
+
         else if (mPrintTablero[x][y] == -3) { // solo coloca la bandera si la celda está sin descubrir
             mPrintTablero[x][y] = -1;           // marca la celda con una bandera
             mBanderasColocadas++;               // incrementa el contador de banderas
             cout << endl <<  "   ☑ Bandera colocada en (" << x + 1 << ", " << y + 1 << ")." << endl;}
-        
+
         else if ((mPrintTablero[x][y]!=-1) && (mPrintTablero[x][y]!=-2) && (mPrintTablero[x][y]!=-3)) {
             cout <<  endl <<  "  ⚠️  ADVERTENCIA: No se puede colocar una bandera en una celda ya descubierta" << endl;}}
 
@@ -450,7 +399,8 @@ void Tutorial() { //Printea un Tutorial
     cout << "         " <<"2 |  2  ★  ▢  ▢  " << endl;
     cout << "         " <<"3 |  1  1  2  ▢  " << endl;
     cout << "         " <<"4 |  0  0  1  ★  " << endl << endl;
-    cout << "         " <<"  -- GAVE OVER -- "<< endl ;
+    cout << "         " <<"  -- GAME OVER -- "<< endl ;
+
     this_thread::sleep_for(chrono::seconds(7));
     Menu();}
 
